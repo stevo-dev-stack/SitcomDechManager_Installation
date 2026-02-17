@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SITCOM Dech Manager – Guide d'installation</title>
+  <style>
+    :root {
+      --green: #2D7A3E;
+      --light-green: #5FA96D;
+      --green-bg: #f0f7f1;
+      --orange: #F7941D;
+      --gray: #6B7280;
+      --light-gray: #F3F4F6;
+      --danger: #DC2626;
+      --warning: #F59E0B;
+      --code-bg: #1e1e2e;
+      --code-text: #cdd6f4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f7fa;
+      color: #1f2937;
+      line-height: 1.7;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, var(--green) 0%, var(--light-green) 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .header-logo {
+      width: 72px; height: 72px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 32px;
+    }
+    .header h1 { font-size: 2rem; font-weight: 800; }
+    .header p  { opacity: .85; margin-top: 6px; font-size: 1.05rem; }
+
+    /* OS Tabs */
+    .os-bar {
+      background: white;
+      border-bottom: 2px solid #e5e7eb;
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      padding: 12px 20px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    }
+    .os-tab {
+      padding: 10px 22px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--gray);
+      transition: all .2s;
+      border-radius: 6px 6px 0 0;
+    }
+    .os-tab:hover { color: var(--green); background: var(--green-bg); }
+    .os-tab.active { color: var(--green); border-bottom-color: var(--green); }
+
+    /* Main layout */
+    .container { max-width: 900px; margin: 0 auto; padding: 30px 20px 80px; }
+
+    /* OS panels */
+    .os-panel { display: none; }
+    .os-panel.active { display: block; }
+
+    /* Steps */
+    .step {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .step-header {
+      background: var(--green-bg);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .step-num {
+      width: 36px; height: 36px;
+      background: var(--green);
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .step-title { font-size: 1.05rem; font-weight: 700; color: var(--green); }
+    .step-subtitle { font-size: .85rem; color: var(--gray); margin-top: 2px; }
+    .step-body { padding: 20px; }
+    .step-body p { margin-bottom: 12px; color: #374151; }
+
+    /* Code blocks */
+    .code-block {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 8px;
+      padding: 16px 18px;
+      font-family: 'Courier New', monospace;
+      font-size: .88rem;
+      line-height: 1.8;
+      margin: 12px 0;
+      position: relative;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .code-block .comment { color: #6c7086; }
+    .code-block .cmd     { color: #89b4fa; }
+    .code-block .val     { color: #a6e3a1; }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: rgba(255,255,255,.12);
+      border: none;
+      color: #cdd6f4;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: .78rem;
+      transition: background .2s;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,.22); }
+
+    /* Note boxes */
+    .note { border-radius: 8px; padding: 14px 16px; margin: 12px 0; display: flex; gap: 10px; }
+    .note-info    { background: #dbeafe; border-left: 4px solid #3b82f6; }
+    .note-warning { background: #fef3c7; border-left: 4px solid var(--warning); }
+    .note-success { background: #d1fae5; border-left: 4px solid var(--light-green); }
+    .note-danger  { background: #fee2e2; border-left: 4px solid var(--danger); }
+    .note-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+    .note-text { font-size: .9rem; line-height: 1.6; }
+    .note-text strong { display: block; margin-bottom: 3px; }
+
+    /* Checklist */
+    .checklist { list-style: none; }
+    .checklist li {
+      padding: 8px 12px;
+      margin: 6px 0;
+      background: var(--light-gray);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: .92rem;
+    }
+    .check-icon { color: var(--green); font-size: 1.1rem; }
+
+    /* Status badge */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .8rem;
+      font-weight: 600;
+    }
+    .badge-green  { background: #d1fae5; color: #065f46; }
+    .badge-orange { background: #fef3c7; color: #92400e; }
+
+    /* Final success */
+    .success-box {
+      background: linear-gradient(135deg, var(--green), var(--light-green));
+      color: white;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      margin-top: 30px;
+    }
+    .success-box h2 { font-size: 1.6rem; margin-bottom: 10px; }
+    .success-box p  { opacity: .9; margin-bottom: 6px; }
+    .url-chip {
+      display: inline-block;
+      background: rgba(255,255,255,.2);
+      border-radius: 6px;
+      padding: 6px 16px;
+      font-family: monospace;
+      margin: 4px;
+      font-size: .95rem;
+    }
+
+    /* Divider */
+    hr { border: none; border-top: 1px solid #e5e7eb; margin: 16px 0; }
+
+    label { font-weight: 600; color: #374151; display: block; margin-bottom: 4px; }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: .9rem;
+      color: #1f2937;
+    }
+
+    @media (max-width: 600px) {
+      .header h1 { font-size: 1.5rem; }
+      .os-tab { padding: 8px 12px; font-size: .85rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">🗑️</div>
+  <h1>SITCOM Dech Manager</h1>
+  <p>Guide d'installation locale complète — Côte Sud des Landes</p>
+</div>
+
+<!-- OS selector tabs -->
+<div class="os-bar">
+  <button class="os-tab active" onclick="switchOS('windows')">🪟 Windows</button>
+  <button class="os-tab" onclick="switchOS('mac')">🍎 macOS</button>
+  <button class="os-tab" onclick="switchOS('linux')">🐧 Linux (Ubuntu)</button>
+</div>
+
+<div class="container">
+
+  <!-- ===== WINDOWS ===== -->
+  <div class="os-panel active" id="panel-windows">
+
+    <div class="note note-info">
+      <span class="note-icon">ℹ️</span>
+      <div class="note-text">
+        <strong>Avant de commencer</strong>
+        Ouvrez <strong>PowerShell en tant qu'Administrateur</strong> : clic droit sur le menu Démarrer → "Terminal Windows (Admin)" ou "Windows PowerShell (Admin)".
+      </div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Installer Node.js</div>
+          <div class="step-subtitle">Node.js est déjà installé — vérification</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <p>Ouvrez PowerShell et vérifiez :</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">node --version</span>   <span class="comment"># Doit afficher v18 ou plus</span>
+<span class="cmd">npm --version</span>    <span class="comment"># Doit afficher 9 ou plus</span></div>
+        <div class="note note-success">
+          <span class="note-icon">✅</span>
+          <div class="note-text">Si les versions s'affichent, Node.js est prêt. Sinon téléchargez-le sur <strong>nodejs.org</strong> (version LTS).</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Installer PostgreSQL</div>
+          <div class="step-subtitle">La base de données principale</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <p><strong>Option A — Installeur graphique (recommandé pour Windows) :</strong></p>
+        <ol style="margin: 10px 0 10px 20px; line-height: 2">
+          <li>Allez sur <strong>postgresql.org/download/windows</strong></li>
+          <li>Téléchargez PostgreSQL <strong>16</strong> (installer EDB)</li>
+          <li>Lancez l'installeur → suivez les étapes</li>
+          <li>Choisissez le mot de passe <strong>postgres</strong> pour le superutilisateur <em>(notez-le!)</em></li>
+          <li>Port par défaut : <strong>5432</strong> — laissez tel quel</li>
+          <li>Terminez l'installation</li>
+        </ol>
+        <p><strong>Option B — Via Chocolatey (si installé) :</strong></p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">choco install postgresql16 --params '/Password:postgres'</span></div>
+        <p>Après installation, vérifiez :</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">psql --version</span>    <span class="comment"># Doit afficher psql (PostgreSQL) 16.x</span></div>
+        <div class="note note-warning">
+          <span class="note-icon">⚠️</span>
+          <div class="note-text"><strong>Si psql n'est pas reconnu</strong>, ajoutez PostgreSQL au PATH : Panneau de configuration → Système → Variables d'environnement → PATH → Ajouter <code>C:\Program Files\PostgreSQL\16\bin</code></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Créer la base de données</div>
+          <div class="step-subtitle">Initialise les 8 tables + données de test</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <p>Dans PowerShell, connectez-vous à PostgreSQL :</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">psql -U postgres</span></div>
+        <p>Entrez votre mot de passe quand demandé, puis :</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="val">CREATE DATABASE sitcom_dech_manager;</span>
+<span class="cmd">\q</span></div>
+        <p>Importez le schéma (remplacez le chemin vers votre dossier) :</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">psql -U postgres -d sitcom_dech_manager -f "C:\sitcom-dech-manager\database\schema.sql"</span></div>
+        <p>Vérifiez que tout est créé :</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">psql -U postgres -d sitcom_dech_manager -c "\dt"</span>
+<span class="comment"># Doit afficher 8 tables : users, disposal_sites, containers, alerts...</span></div>
+        <div class="note note-success">
+          <span class="note-icon">✅</span>
+          <div class="note-text">Si vous voyez les 8 tables, la base de données est prête!</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-title">Configurer le backend</div>
+          <div class="step-subtitle">Installer les dépendances et créer le fichier .env</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="comment"># Allez dans le dossier backend</span>
+<span class="cmd">cd C:\sitcom-dech-manager\backend</span>
+
+<span class="comment"># Installez les dépendances</span>
+<span class="cmd">npm install</span></div>
+
+        <p>Créez le fichier <code>.env</code> :</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">copy .env.example .env</span>
+<span class="cmd">notepad .env</span></div>
+
+        <p>Dans Notepad, modifiez ces lignes :</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="val">NODE_ENV=development
+PORT=3001
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=sitcom_dech_manager
+DB_USER=postgres
+DB_PASSWORD=</span><span style="color:#f38ba8">VotreMotDePasse</span>
+<span class="val">JWT_SECRET=sitcom40_secret_key_change_in_production_min32chars</span>
+<span class="val">CORS_ORIGIN=http://localhost:3000</span></div>
+
+        <p>Sauvegardez et fermez Notepad, puis démarrez :</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">npm run dev</span></div>
+
+        <div class="note note-success">
+          <span class="note-icon">✅</span>
+          <div class="note-text">Vous devriez voir : <strong>🚀 SITCOM Dech Manager API running on port 3001</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">5</div>
+        <div>
+          <div class="step-title">Lancer le frontend</div>
+          <div class="step-subtitle">Interface Admin + Mobile Worker</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <p>Ouvrez un <strong>nouveau</strong> PowerShell (laissez le backend tourner) :</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">cd C:\sitcom-dech-manager\frontend\admin</span>
+<span class="cmd">npm install</span></div>
+
+        <p>Créez le fichier de config :</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">echo REACT_APP_API_URL=http://localhost:3001/api > .env</span></div>
+
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">npm run dev</span></div>
+
+        <div class="note note-success">
+          <span class="note-icon">✅</span>
+          <div class="note-text">Ouvrez votre navigateur sur <strong>http://localhost:3000</strong></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /windows -->
+
+
+  <!-- ===== MACOS ===== -->
+  <div class="os-panel" id="panel-mac">
+
+    <div class="note note-info">
+      <span class="note-icon">ℹ️</span>
+      <div class="note-text">
+        <strong>Avant de commencer</strong>
+        Ouvrez le <strong>Terminal</strong> : Cmd+Espace → tapez "Terminal" → Entrée.
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Installer Homebrew (si pas encore fait)</div>
+          <div class="step-subtitle">Le gestionnaire de paquets macOS</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="comment"># Vérifiez d'abord</span>
+<span class="cmd">brew --version</span>
+
+<span class="comment"># Si "command not found", installez Homebrew :</span>
+<span class="cmd">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Installer PostgreSQL</div>
+          <div class="step-subtitle">Base de données</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">brew install postgresql@16</span>
+
+<span class="comment"># Démarrez PostgreSQL</span>
+<span class="cmd">brew services start postgresql@16</span>
+
+<span class="comment"># Ajoutez au PATH</span>
+<span class="cmd">echo 'export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"' >> ~/.zshrc</span>
+<span class="cmd">source ~/.zshrc</span>
+
+<span class="comment"># Vérifiez</span>
+<span class="cmd">psql --version</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Créer la base de données</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="comment"># Créez la base</span>
+<span class="cmd">createdb sitcom_dech_manager</span>
+
+<span class="comment"># Importez le schéma (adaptez le chemin)</span>
+<span class="cmd">psql -d sitcom_dech_manager -f ~/sitcom-dech-manager/database/schema.sql</span>
+
+<span class="comment"># Vérifiez les tables</span>
+<span class="cmd">psql -d sitcom_dech_manager -c "\dt"</span></div>
+        <div class="note note-info">
+          <span class="note-icon">ℹ️</span>
+          <div class="note-text">Sur macOS, l'utilisateur par défaut de PostgreSQL est votre nom d'utilisateur macOS (pas "postgres"). Pas de mot de passe requis en local.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-title">Configurer et démarrer le backend</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">cd ~/sitcom-dech-manager/backend</span>
+<span class="cmd">npm install</span>
+<span class="cmd">cp .env.example .env</span>
+<span class="cmd">nano .env</span></div>
+
+        <p>Modifiez ces lignes dans nano (Ctrl+O pour sauver, Ctrl+X pour quitter) :</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="val">DB_HOST=localhost
+DB_USER=</span><span style="color:#f38ba8">votre_nom_utilisateur_mac</span>
+<span class="val">DB_PASSWORD=
+JWT_SECRET=sitcom40_secret_key_change_in_production_min32chars</span></div>
+
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">npm run dev</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">5</div>
+        <div>
+          <div class="step-title">Lancer le frontend</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="comment"># Nouveau terminal (Cmd+T)</span>
+<span class="cmd">cd ~/sitcom-dech-manager/frontend/admin</span>
+<span class="cmd">npm install</span>
+<span class="cmd">echo "REACT_APP_API_URL=http://localhost:3001/api" > .env</span>
+<span class="cmd">npm run dev</span></div>
+      </div>
+    </div>
+
+  </div><!-- /mac -->
+
+
+  <!-- ===== LINUX ===== -->
+  <div class="os-panel" id="panel-linux">
+
+    <div class="note note-info">
+      <span class="note-icon">ℹ️</span>
+      <div class="note-text">
+        <strong>Avant de commencer</strong>
+        Ouvrez un Terminal (Ctrl+Alt+T sur Ubuntu).
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Installer PostgreSQL</div>
+          <div class="step-subtitle">Ubuntu / Debian</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="comment"># Mise à jour du système</span>
+<span class="cmd">sudo apt update</span>
+
+<span class="comment"># Installation</span>
+<span class="cmd">sudo apt install -y postgresql postgresql-contrib</span>
+
+<span class="comment"># Démarrage automatique</span>
+<span class="cmd">sudo systemctl start postgresql</span>
+<span class="cmd">sudo systemctl enable postgresql</span>
+
+<span class="comment"># Vérification</span>
+<span class="cmd">psql --version</span>    <span class="comment"># Doit afficher psql (PostgreSQL) 14 ou 16</span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Créer l'utilisateur et la base de données</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="comment"># Définissez un mot de passe pour postgres</span>
+<span class="cmd">sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'sitcom2026';"</span>
+
+<span class="comment"># Créez la base</span>
+<span class="cmd">sudo -u postgres createdb sitcom_dech_manager</span>
+
+<span class="comment"># Importez le schéma</span>
+<span class="cmd">sudo -u postgres psql -d sitcom_dech_manager -f ~/sitcom-dech-manager/database/schema.sql</span>
+
+<span class="comment"># Vérifiez les 8 tables</span>
+<span class="cmd">sudo -u postgres psql -d sitcom_dech_manager -c "\dt"</span></div>
+        <div class="note note-success">
+          <span class="note-icon">✅</span>
+          <div class="note-text">Vous devez voir les tables : users, disposal_sites, containers, container_categories, fill_reports, alerts, user_site_assignments, activity_logs</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Configurer et démarrer le backend</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">cd ~/sitcom-dech-manager/backend</span>
+<span class="cmd">npm install</span>
+<span class="cmd">cp .env.example .env</span>
+<span class="cmd">nano .env</span></div>
+
+        <p>Modifiez (Ctrl+O pour sauver, Ctrl+X pour quitter) :</p>
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="val">NODE_ENV=development
+PORT=3001
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=sitcom_dech_manager
+DB_USER=postgres
+DB_PASSWORD=sitcom2026
+JWT_SECRET=sitcom40_secret_key_change_in_production_min32chars
+CORS_ORIGIN=http://localhost:3000</span></div>
+
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">npm run dev</span></div>
+
+        <div class="note note-success">
+          <span class="note-icon">✅</span>
+          <div class="note-text">🚀 SITCOM Dech Manager API running on port 3001</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-title">Lancer le frontend</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="comment"># Nouveau terminal (Ctrl+Alt+T)</span>
+<span class="cmd">cd ~/sitcom-dech-manager/frontend/admin</span>
+<span class="cmd">npm install</span>
+<span class="cmd">echo "REACT_APP_API_URL=http://localhost:3001/api" > .env</span>
+<span class="cmd">npm run dev</span></div>
+      </div>
+    </div>
+
+  </div><!-- /linux -->
+
+
+  <!-- === COMMON SECTION (visible all tabs) === -->
+
+  <div class="step">
+    <div class="step-header" style="background:#fff3cd">
+      <div class="step-num" style="background:var(--orange)">6</div>
+      <div>
+        <div class="step-title" style="color:var(--orange)">Tester l'installation</div>
+        <div class="step-subtitle">Vérifier que tout fonctionne</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <p><strong>Test 1 — Backend API</strong></p>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="comment"># Dans un nouveau terminal</span>
+<span class="cmd">curl http://localhost:3001/health</span>
+<span class="comment"># Réponse attendue : {"status":"ok","timestamp":"..."}</span></div>
+
+      <p><strong>Test 2 — Connexion admin</strong></p>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">curl -X POST http://localhost:3001/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@sitcom40.fr","password":"Admin123!"}'</span>
+<span class="comment"># Réponse attendue : {"token":"...", "user":{...}}</span></div>
+
+      <p><strong>Test 3 — Navigateur</strong></p>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button>Ouvrez : <span class="val">http://localhost:3000</span>
+Login :  <span class="val">admin@sitcom40.fr</span>  /  <span class="val">Admin123!</span></div>
+    </div>
+  </div>
+
+  <!-- Credentials -->
+  <div class="step">
+    <div class="step-header" style="background:#d1fae5">
+      <div class="step-num">🔑</div>
+      <div>
+        <div class="step-title" style="color:#065f46">Identifiants par défaut</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <ul class="checklist">
+        <li><span class="check-icon">👤</span> <strong>Admin :</strong>&nbsp; admin@sitcom40.fr &nbsp;/&nbsp; Admin123!</li>
+        <li><span class="check-icon">👷</span> <strong>Worker :</strong>&nbsp; Créez via le panel admin après connexion</li>
+        <li><span class="check-icon">🗄️</span> <strong>PostgreSQL :</strong>&nbsp; postgres &nbsp;/&nbsp; <em>votre mot de passe</em></li>
+      </ul>
+      <div class="note note-danger" style="margin-top:14px">
+        <span class="note-icon">🔒</span>
+        <div class="note-text"><strong>En production :</strong> changez impérativement le mot de passe admin et le JWT_SECRET!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Troubleshooting -->
+  <div class="step">
+    <div class="step-header">
+      <div class="step-num">🐛</div>
+      <div>
+        <div class="step-title">Problèmes courants</div>
+        <div class="step-subtitle">Solutions rapides</div>
+      </div>
+    </div>
+    <div class="step-body">
+
+      <p><strong>❌ "Cannot connect to database" / ECONNREFUSED 5432</strong></p>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="comment"># Windows — vérifier que PostgreSQL tourne</span>
+<span class="cmd">Get-Service -Name postgresql*</span>
+<span class="cmd">Start-Service -Name postgresql-x64-16</span>
+
+<span class="comment"># macOS</span>
+<span class="cmd">brew services restart postgresql@16</span>
+
+<span class="comment"># Linux</span>
+<span class="cmd">sudo systemctl restart postgresql</span></div>
+
+      <hr>
+
+      <p><strong>❌ "psql: password authentication failed"</strong></p>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="comment"># Réinitialisez le mot de passe PostgreSQL</span>
+<span class="comment"># Linux :</span>
+<span class="cmd">sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'sitcom2026';"</span>
+<span class="comment"># Puis mettez à jour DB_PASSWORD dans backend/.env</span></div>
+
+      <hr>
+
+      <p><strong>❌ "Port 3001 already in use"</strong></p>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="comment"># Trouvez et tuez le processus</span>
+<span class="comment"># Windows :</span>
+<span class="cmd">netstat -ano | findstr :3001</span>
+<span class="cmd">taskkill /PID [le_pid] /F</span>
+
+<span class="comment"># macOS / Linux :</span>
+<span class="cmd">lsof -ti:3001 | xargs kill -9</span></div>
+
+      <hr>
+
+      <p><strong>❌ "Module not found" / npm errors</strong></p>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="cmd">cd backend</span>
+<span class="cmd">rm -rf node_modules package-lock.json</span>
+<span class="cmd">npm install</span></div>
+
+      <hr>
+
+      <p><strong>❌ Frontend ne se charge pas (écran blanc)</strong></p>
+      <div class="code-block"><button class="copy-btn" onclick="copyCode(this)">Copier</button><span class="comment"># Vérifiez que le backend tourne d'abord :</span>
+<span class="cmd">curl http://localhost:3001/health</span>
+
+<span class="comment"># Vérifiez le fichier frontend/.env :</span>
+<span class="cmd">cat frontend/admin/.env</span>
+<span class="comment"># Doit contenir : REACT_APP_API_URL=http://localhost:3001/api</span></div>
+
+    </div>
+  </div>
+
+  <!-- Success box -->
+  <div class="success-box">
+    <div style="font-size:3rem;margin-bottom:12px">🎉</div>
+    <h2>Installation terminée!</h2>
+    <p>Votre application SITCOM Dech Manager tourne en local.</p>
+    <div style="margin: 16px 0">
+      <div class="url-chip">🌐 Frontend → http://localhost:3000</div>
+      <div class="url-chip">⚙️ API → http://localhost:3001</div>
+    </div>
+    <p style="font-size:.9rem;opacity:.8">Connectez-vous avec admin@sitcom40.fr / Admin123!</p>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  function switchOS(os) {
+    document.querySelectorAll('.os-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.os-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + os).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  function copyCode(btn) {
+    const block = btn.parentElement;
+    const text = block.innerText.replace('Copier', '').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copié!';
+      setTimeout(() => btn.textContent = 'Copier', 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
